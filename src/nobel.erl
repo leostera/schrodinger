@@ -13,26 +13,29 @@
           control=false
          }).
 
-sample() ->
+sample(I) ->
   Wait = fun (Seconds, Return) ->
           fun () ->
            receive
-           after Seconds*1000 -> Return
+           after round(Seconds*1000) -> Return
            end
           end
          end,
-  experiment("Test Experiment", [Wait(2, true), Wait(3, false)]).
+  experiment("Test Experiment",
+             [ Wait(2, true) |
+               [ Wait(random:uniform()*N, false) || N <- lists:seq(0,I) ]
+             ]).
 
 experiment(Name, Foos) ->
   Experiments = [ run(Name, hd(Foos), true) |
                   lists:map(fun (F) -> run(Name, F) end, tl(Foos)) ],
   Measurements = collect(Name, Experiments),
+  compare(Measurements),
   Measurements.
 
 collect(Name, Experiments) -> collect(Name, Experiments, []).
 collect(_Name, [], Results) -> Results;
 collect(Name, Experiments, Results) ->
-  io:format("~p ~p ~p\n\n", [Name, Experiments, Results]),
   receive
     {Pid, Result} ->
       RemainingExperiments = lists:filter(fun (Experiment) ->
@@ -41,7 +44,6 @@ collect(Name, Experiments, Results) ->
       Experiment = hd(lists:filter( fun (Experiment) ->
                                   Pid =:= Experiment#measurement.pid
                               end, Experiments)),
-      io:format("~p ~p ~p ~p\n\n", [RemainingExperiments, Experiment, Pid, Result]),
       Done = timestamp(),
       NewExperiment = Experiment#measurement{
                      result=Result,
@@ -49,6 +51,7 @@ collect(Name, Experiments, Results) ->
                      delta=Done-Experiment#measurement.started_at
                     },
       AccResults = [ NewExperiment | Results ],
+      print_measurement(NewExperiment),
       collect(Name, RemainingExperiments, AccResults)
   end.
 
@@ -71,9 +74,20 @@ run(Name, F, Control) when is_function(F) ->
     control=Control
   }.
 
-compare(Name, R1, R2) ->
-  io:format("Experiment : ~p\n-------------------\n", [Name]),
-  io:format("Started At : ~p ~p \n", [R1#measurement.started_at,  R2#measurement.started_at]),
-  io:format("Finished At: ~p ~p \n", [R1#measurement.finished_at, R2#measurement.finished_at]),
-  io:format("Delta      : ~p \t\t ~p \n", [R1#measurement.delta,       R2#measurement.delta]),
-  io:format("Result     : ~p \t ~p \n", [R1#measurement.result,      R2#measurement.result]).
+compare(Measurements) ->
+  io:format("\n\n"),
+  io:format("---------------------------------------------------------------------------------\n"),
+  io:format("Name\t\t\tStart\t\tEnd\t\tTime\tResult Experiment\n"),
+  io:format("---------------------------------------------------------------------------------\n"),
+  lists:foreach(fun print_measurement/1, Measurements),
+  io:format("---------------------------------------------------------------------------------\n").
+
+print_measurement(M) ->
+  io:format("~p\t~p\t~p\t~p\t~p\t~p\n", [
+    M#measurement.name,
+    M#measurement.started_at,
+    M#measurement.finished_at,
+    M#measurement.delta,
+    M#measurement.result,
+    M#measurement.control
+  ]).
