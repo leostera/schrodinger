@@ -5,37 +5,43 @@
 -record(measurement, {
           name,
           started_at=timestamp(),
-          finished_at=not_run,
+          finished_at=not_finished,
           delta=0,
-          result=not_run,
+          result=no_result,
           foo=not_set,
-          pid,
+          pid=no_pid,
           control=false
          }).
 
 sample(I) ->
-  Wait = fun (Seconds, Return) ->
-          fun () ->
-           receive
-           after round(Seconds*1000) -> Return
-           end
-          end
+  Wait = fun (Id, Time, Return) ->
+             { io_lib:format("Experiment #~p", [Id]),
+               fun () ->
+                   receive
+                   after round(random:uniform()*Time*1000) -> Return
+                   end
+               end
+             }
          end,
   experiment("Test Experiment",
-             [ Wait(2, true) |
-               [ Wait(random:uniform()*N, false) || N <- lists:seq(0,I) ]
+             [ Wait(0, 2, true) |
+               [ Wait(N, N, N) || N <- lists:seq(1,I-1) ]
              ]).
 
 experiment(Name, Foos) ->
-  Experiments = [ run(Name, hd(Foos), true) |
-                  lists:map(fun (F) -> run(Name, F) end, tl(Foos)) ],
-  Measurements = collect(Name, Experiments),
-  compare(Measurements),
-  Measurements.
+  Experiments = [ run(hd(Foos), true) |
+                  lists:map(fun (F) -> run(F) end, tl(Foos)) ],
+  io:format("~p (~p experiments)", [Name, length(Foos)]),
+  io:format("\n\n"),
+  io:format("---------------------------------------------------------------------------------\n"),
+  io:format("Name\t\tStart\t\tEnd\t\tTime\tResult Experiment\n"),
+  io:format("---------------------------------------------------------------------------------\n"),
+  Measurements = collect(Experiments),
+  {Name, Measurements}.
 
-collect(Name, Experiments) -> collect(Name, Experiments, []).
-collect(_Name, [], Results) -> Results;
-collect(Name, Experiments, Results) ->
+collect(Experiments) -> collect(Experiments, []).
+collect([], Results) -> Results;
+collect(Experiments, Results) ->
   receive
     {Pid, Result} ->
       RemainingExperiments = lists:filter(fun (Experiment) ->
@@ -46,20 +52,20 @@ collect(Name, Experiments, Results) ->
                               end, Experiments)),
       Done = timestamp(),
       NewExperiment = Experiment#measurement{
-                     result=Result,
-                     finished_at=Done,
-                     delta=Done-Experiment#measurement.started_at
-                    },
-      AccResults = [ NewExperiment | Results ],
+                        result=Result,
+                        finished_at=Done,
+                        delta=Done-Experiment#measurement.started_at
+                       },
       print_measurement(NewExperiment),
-      collect(Name, RemainingExperiments, AccResults)
+      AccResults = [ NewExperiment | Results ],
+      collect(RemainingExperiments, AccResults)
   end.
 
 timestamp() -> erlang:monotonic_time(seconds).
 
-run(Name, F) -> run(Name, F, false).
+run(Spec) -> run(Spec, false).
 
-run(Name, F, Control) when is_function(F) ->
+run({Name, F}, Control) when is_function(F) ->
   Collector=self(),
   Experiment = #measurement{
                   name=Name,
@@ -74,20 +80,12 @@ run(Name, F, Control) when is_function(F) ->
     control=Control
   }.
 
-compare(Measurements) ->
-  io:format("\n\n"),
-  io:format("---------------------------------------------------------------------------------\n"),
-  io:format("Name\t\t\tStart\t\tEnd\t\tTime\tResult Experiment\n"),
-  io:format("---------------------------------------------------------------------------------\n"),
-  lists:foreach(fun print_measurement/1, Measurements),
-  io:format("---------------------------------------------------------------------------------\n").
-
 print_measurement(M) ->
-  io:format("~p\t~p\t~p\t~p\t~p\t~p\n", [
+  io:format("~s\t~p\t~p\t~p\t~p\t~p\n", [
     M#measurement.name,
     M#measurement.started_at,
     M#measurement.finished_at,
     M#measurement.delta,
     M#measurement.result,
-    M#measurement.control
+    not M#measurement.control
   ]).
