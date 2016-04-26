@@ -20,7 +20,13 @@ sample(Server, I) ->
              [ Wait(N, N, N) || N <- lists:seq(1,I-1) ]).
 
 report(Server, Name) ->
-  Measurements = gen_server:call(Server, {report, Name}),
+  case catch(gen_server:call(Server, {report, Name})) of
+    {'EXIT', {timeout, _}} -> {error, timeout};
+    [] -> {status, still_running};
+    [{_Name, Results}|_] -> print_report(Name, Results)
+  end.
+
+print_report(Name, Measurements) ->
   io:format("~p (~p experiments)", [Name, length(Measurements)]),
   io:format("\n\n"),
   io:format("---------------------------------------------------------------------------------\n"),

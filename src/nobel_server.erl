@@ -44,7 +44,6 @@ experiment(Name, Control, Candidates, Scientist, Db) ->
   Observations = [ run(Control, control) |
                   lists:map(fun (F) -> run(F) end, Candidates) ],
   Results = collect(Name, Observations, Scientist),
-  io:format("Got results: ~p", [Results]),
   ets:insert(Db, {Name, Results}).
 
 collect(Name, Observations, Scientist) -> collect(Name, Observations, Scientist, []).
@@ -59,6 +58,7 @@ collect(Name, Observations, Scientist, Results) ->
                                        end, Observations),
       Scientist ! {measurement, {Name, Observation}},
       collect(Name, RemainingObservations, Scientist, [ Observation | Results ])
+  after infinity -> {error, infinity}
   end.
 
 timestamp() -> erlang:monotonic_time(seconds).
