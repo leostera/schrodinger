@@ -16,61 +16,49 @@
          terminate/2,
          code_change/3]).
 
--record(state, {}).
-
 start_link() ->
   gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 init([]) ->
-  {ok, #state{}}.
+  Experiments = ets:new(nobel_experiments, [named_table]),
+  {ok, Experiments}.
 
-handle_call(_Request, _From, State) ->
-  {reply, ignored, State}.
+handle_call({report, Name}, _From, Db) ->
+  Experiment = ets:lookup(Db, Name),
+  {reply, Experiment, Db}.
 
-handle_cast({measure, {Name, Control, Candidates}, Scientist}, State) ->
-  experiment(Name, Control, Candidates, Scientist),
-  {noreply, State}.
+handle_cast({measure, {Name, Control, Candidates}, Scientist}, Db) ->
+  experiment(Name, Control, Candidates, Scientist, Db),
+  {noreply, Db}.
 
-handle_info(_Info, State) ->
-  {noreply, State}.
+handle_info(_Info, Db) ->
+  {noreply, Db}.
 
 terminate(_Reason, _State) ->
   ok.
 
-code_change(_OldVsn, State, _Extra) ->
-  {ok, State}.
+code_change(_OldVsn, Db, _Extra) ->
+  {ok, Db}.
 
-experiment(Name, Control, Candidates, Scientist) ->
-  Observations = [ run(Control, true) |
+experiment(Name, Control, Candidates, Scientist, Db) ->
+  Observations = [ run(Control, control) |
                   lists:map(fun (F) -> run(F) end, Candidates) ],
-  io:format("~p (~p experiments)", [Name, length(Candidates)+1]),
-  io:format("\n\n"),
-  io:format("---------------------------------------------------------------------------------\n"),
-  io:format("Name\t\tStart\t\tEnd\t\tTime\tResult Observation\n"),
-  io:format("---------------------------------------------------------------------------------\n"),
-  collect(Observations, Scientist).
+  Results = collect(Name, Observations, Scientist),
+  io:format("Got results: ~p", [Results]),
+  ets:insert(Db, {Name, Results}).
 
-collect(Observations, Scientist) -> collect(Observations, Scientist, []).
-collect([], Scientist, Results) -> Scientist ! {results, Results};
-collect(Observations, Scientist, Results) ->
+collect(Name, Observations, Scientist) -> collect(Name, Observations, Scientist, []).
+collect(Name, [], Scientist, Results) ->
+  Scientist ! {results, {Name, Results}},
+  Results;
+collect(Name, Observations, Scientist, Results) ->
   receive
-    {Pid, Result} ->
-      RemainingObservations = lists:filter(fun (Observation) ->
-                                           Pid =/= Observation#observation.pid
+    #observation{pid=Pid}=Observation ->
+      RemainingObservations = lists:filter(fun (Obs) ->
+                                           Pid =/= Obs#observation.pid
                                        end, Observations),
-      Observation = hd(lists:filter( fun (Observation) ->
-                                  Pid =:= Observation#observation.pid
-                              end, Observations)),
-      Done = timestamp(),
-      NewObservation = Observation#observation{
-                        result=Result,
-                        finished_at=Done,
-                        time_delta=Done-Observation#observation.started_at
-                       },
-      Scientist ! {measurement, NewObservation},
-      print_measurement(NewObservation),
-      AccResults = [ NewObservation | Results ],
-      collect(RemainingObservations, Scientist, AccResults)
+      Scientist ! {measurement, {Name, Observation}},
+      collect(Name, RemainingObservations, Scientist, [ Observation | Results ])
   end.
 
 timestamp() -> erlang:monotonic_time(seconds).
@@ -79,23 +67,22 @@ run(Spec) -> run(Spec, candidate).
 
 run({Name, F}, Type) when is_function(F) ->
   Collector=self(),
+  Observation = #observation{
+                   name=Name,
+                   predicate=F,
+                   type=Type,
+                   started_at=timestamp()
+                  },
   Pid=erlang:spawn( fun () ->
                         Result = F(),
-                        Collector ! { self(), Result }
+                        Done = timestamp(),
+                        Collector ! Observation#observation {
+                          result=Result,
+                          finished_at=Done,
+                          time_delta=Done-Observation#observation.started_at,
+                          pid=self()
+                         }
                     end ),
-  #observation{
-     name=Name,
-     predicate=F,
-     pid=Pid,
-     type=Type
+  Observation#observation{
+     pid=Pid
   }.
-
-print_measurement(M) ->
-  io:format("~s\t~p\t~p\t~p\t~p\t~p\n", [
-    M#observation.name,
-    M#observation.started_at,
-    M#observation.finished_at,
-    M#observation.time_delta,
-    M#observation.result,
-    M#observation.type
-  ]).
