@@ -1,8 +1,8 @@
-# Nobel
+# Schrodinger
 > A simple approach to Science in Erlang
 
 ```erlang
-nobel:experiment(ExperimentName, Control, Candidate)
+schrodinger:experiment(ExperimentName, Control, Candidate)
 
 ExperimentName :: string()
 Control        :: Hypothesis
@@ -11,11 +11,11 @@ Hypothesis     :: { Name, Function }
 ```
 
 ```erlang
-nobel:experiment("experiment.key_name",
+schrodinger:experiment("experiment.key_name",
                 {"Old control function", ControlFoo},
                 {"New hypothesis!", CandidateFoo}).
 
-nobel:experiment("multiple_experiments",
+schrodinger:experiment("multiple_experiments",
                 {"Old control function", ControlFoo},
                 [
                   {"comprehension instead of map", Exp1},
