@@ -61,7 +61,7 @@ collect(Name, Observations, Scientist, Results) ->
   after infinity -> {error, infinity}
   end.
 
-timestamp() -> erlang:monotonic_time(seconds).
+timestamp() -> erlang:system_time(milli_seconds).
 
 run(Spec) -> run(Spec, candidate).
 

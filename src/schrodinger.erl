@@ -4,7 +4,7 @@
 
 -include("../include/schrodinger.hrl").
 
-sample(Server, I) ->
+sample(Server, Name, I) ->
   Wait = fun (Id, Time, Return) ->
              { io_lib:format("Experiment #~p", [Id]),
                fun () ->
@@ -15,7 +15,7 @@ sample(Server, I) ->
              }
          end,
   experiment(Server,
-             "Test Experiment",
+             Name,
              Wait(0, 2, true),
              [ Wait(N, N, N) || N <- lists:seq(1,I-1) ]).
 
@@ -23,15 +23,14 @@ report(Server, Name) ->
   case catch(gen_server:call(Server, {report, Name})) of
     {'EXIT', {timeout, _}} -> {error, timeout};
     [] -> {status, still_running};
-    [{_Name, Results}|_] -> print_report(Name, Results)
+    [{_Name, Results}|_] -> print_report(Name, Results), Results
   end.
 
 print_report(Name, Measurements) ->
-  io:format("~p (~p experiments)", [Name, length(Measurements)]),
-  io:format("\n\n"),
-  io:format("---------------------------------------------------------------------------------\n"),
-  io:format("Name\t\tStart\t\tEnd\t\tTime\tResult Observation\n"),
-  io:format("---------------------------------------------------------------------------------\n"),
+  io:format("~p (~p experiments)\n", [Name, length(Measurements)]),
+  io:format("------------------------------------------------------------------------------------------\n"),
+  io:format("Name\t\tStart\t\tEnd\t\tTime\tResult  Observation\n"),
+  io:format("------------------------------------------------------------------------------------------\n"),
   [ print_measurement(M) || M <- Measurements ].
 
 experiment(Server, Name, Control, Candidates) ->
