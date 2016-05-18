@@ -46,7 +46,7 @@ print_measurement(M) ->
     M#observation.name,
     M#observation.started_at,
     M#observation.finished_at,
-    M#observation.time_delta,
+    M#observation.duration,
     M#observation.result,
     M#observation.type
   ]).

@@ -64,7 +64,6 @@ collect(Name, Observations, Scientist, Results) ->
 timestamp() -> erlang:system_time(milli_seconds).
 
 run(Spec) -> run(Spec, candidate).
-
 run({Name, F}, Type) when is_function(F) ->
   Collector=self(),
   Observation = #observation{
@@ -79,7 +78,7 @@ run({Name, F}, Type) when is_function(F) ->
                         Collector ! Observation#observation {
                           result=Result,
                           finished_at=Done,
-                          time_delta=Done-Observation#observation.started_at,
+                          duration=Done-Observation#observation.started_at,
                           pid=self()
                          }
                     end ),
