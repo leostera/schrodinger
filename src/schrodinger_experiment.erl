@@ -14,6 +14,7 @@
 %% API functions
 %%====================================================================
 
+-spec run(observation(), publisher()) -> observation().
 run(#observation{predicate=F}=O1, Collector) when is_function(F) ->
   Observation = O1#observation{
                    started_at=timestamp()
@@ -37,4 +38,5 @@ run(#observation{predicate=F}=O1, Collector) when is_function(F) ->
 %% Internal functions
 %%====================================================================
 
+-spec timestamp() -> integer().
 timestamp() -> erlang:system_time(milli_seconds).

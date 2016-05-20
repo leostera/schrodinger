@@ -25,3 +25,6 @@
           started_at  :: timestamp(),
           type        :: type()
          }).
+
+-type observation()  :: #observation{}.
+-type observations() :: [ observation() ].
