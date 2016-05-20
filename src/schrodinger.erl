@@ -9,19 +9,14 @@
 %%====================================================================
 
 experiment(Name, Control, Candidates) ->
-  experiment([
-    {name, Name},
-    {control, Control},
-    {candidates, Candidates},
-    {options, default_options()},
-    {publishers, default_publishers()}
-  ]).
+  experiment(Name, Control, Candidates, default_publishers(), default_options()).
 
-experiment(Spec) ->
-  gen_server:cast(schrodinger_lab, {experiment, Spec}),
-  receive_loop(Spec).
+experiment(Name, Control, Candidates, Publishers, Options) ->
+  gen_server:cast(schrodinger_lab, {experiment, {Name, Control, Candidates, Publishers, Options}}),
+  receive_loop(Options).
 
-receive_loop(Spec) ->
+receive_loop(Options) ->
+  Timeout = proplists:get_value(timeout, Options),
   receive
     {measurement, {_, #observation{type=control}=Observation}} ->
       Observation#observation.result

@@ -46,5 +46,5 @@ run(Name, Predicate, Type) ->
                                 type=Type
                                }, self()).
 
-publish([], _) -> ok;
+publish(_, []) -> ok;
 publish(Data, [H|T]) -> H ! Data, publish(Data, T).

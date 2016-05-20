@@ -42,7 +42,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_call(_, _, _) -> not_implemented.
 
-handle_cast({measure, {Name, _Control, _Candidates, _Reporters, _Options}=Spec}, Db) ->
+handle_cast({experiment, {Name, _Control, _Candidates, _Reporters, _Options}=Spec}, Db) ->
   BoxPid=spawn(schrodinger_box, start, [Spec]),
   ets:insert(Db, {Name, BoxPid}),
   {noreply, Db}.
