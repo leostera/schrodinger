@@ -1,5 +1,5 @@
 
--type name() :: atom() | <<>>.
+-type name() :: atom() | [char()] | <<>>.
 -type timestamp() :: integer() | unset.
 
 -type type() :: candidate | control.

@@ -1,6 +1,8 @@
 -module(schrodinger_helpers).
 
--compile([export_all]).
+-export([
+         sample/2
+        ]).
 
 -include("schrodinger.hrl").
 
@@ -8,6 +10,7 @@
 %% API functions
 %%====================================================================
 
+-spec sample(name(), integer()) -> any().
 sample(Name, I) ->
   Wait = fun (Id, Time, Return) ->
              { io_lib:format("Experiment #~p", [Id]),
@@ -18,6 +21,6 @@ sample(Name, I) ->
                end
              }
          end,
-  schrodinger:experiment(Name,
-                         Wait(0, 2, true),
+  {_, Control} = Wait(0, 2, true),
+  schrodinger:experiment(Name, Control,
                          [ Wait(N, N, N) || N <- lists:seq(1,I-1) ]).

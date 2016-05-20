@@ -36,7 +36,7 @@ collect(Name, Observations, Reporters, Results) ->
   after infinity -> {error, infinity}
   end.
 
-control(Control) -> run("Control", Control, control).
+control(Control) -> run(control, Control, control).
 candidate({Name, Predicate}) -> run(Name, Predicate, candidate).
 
 run(Name, Predicate, Type) ->

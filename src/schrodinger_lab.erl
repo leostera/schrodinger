@@ -40,7 +40,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% Handler functions
 %%====================================================================
 
-handle_call(_, _, _) -> not_implemented.
+handle_call(_, _, _) -> {noreply, not_implemented}.
 
 handle_cast({experiment, {Name, _Control, _Candidates, _Reporters, _Options}=Spec}, Db) ->
   BoxPid=spawn(schrodinger_box, start, [Spec]),
