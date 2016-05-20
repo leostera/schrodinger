@@ -26,7 +26,6 @@ start_link() ->
 %% Supervisor callbacks
 %%====================================================================
 
-%% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
     {ok, { supervision_flags(), child_specs() } }.
 
@@ -35,16 +34,15 @@ init([]) ->
 %%====================================================================
 
 supervision_flags() -> #{
-  strategy => one_for_all,
+  strategy  => one_for_all,
   intensity => 0,
-  peiord => 1
+  peiord    => 1
 }.
 
 child_specs() -> [ #{
-  id => schrodinger_lab,
-  start => { schrodinger_lab, start_link, [] },
-  restart => permanent,
+  id       => schrodinger_lab,
+  restart  => permanent,
   shutdown => brutal_kill,
-  type => supervisor
+  start    => { schrodinger_lab, start_link, [] },
+  type     => supervisor
  } ].
-
