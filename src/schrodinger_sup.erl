@@ -28,8 +28,23 @@ start_link() ->
 
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, { {one_for_all, 0, 1}, []} }.
+    {ok, { supervision_flags(), child_specs() } }.
 
 %%====================================================================
 %% Internal functions
 %%====================================================================
+
+supervision_flags() -> #{
+  strategy => one_for_all,
+  intensity => 0,
+  peiord => 1
+}.
+
+child_specs() -> [ #{
+  id => schrodinger_lab,
+  start => { schrodinger_lab, start_link, [] },
+  restart => permanent,
+  shutdown => brutal_kill,
+  type => supervisor
+ } ].
+
