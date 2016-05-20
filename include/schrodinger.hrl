@@ -6,13 +6,13 @@
 
 -type predicate()  :: fun().
 -type control()    :: predicate().
--type candidate()  :: { atom() | <<>>, predicate() }.
+-type candidate()  :: { name(), predicate() }.
 -type candidates() :: [ candidate() ].
 
 -type publisher()  :: pid().
 -type publishers() :: [ publisher() ].
 
--type option()  :: { atom(), any() }.
+-type option()  :: { name(), any() }.
 -type options() :: [ option() ].
 
 -record(observation, {
