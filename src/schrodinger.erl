@@ -5,7 +5,7 @@
          experiment/5
         ]).
 
--include("../include/schrodinger.hrl").
+-include("schrodinger.hrl").
 
 %%====================================================================
 %% API functions

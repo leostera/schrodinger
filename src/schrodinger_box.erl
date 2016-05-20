@@ -7,7 +7,7 @@
 
 -export([start/1]).
 
--include("../include/schrodinger.hrl").
+-include("schrodinger.hrl").
 
 %%====================================================================
 %% API functions

@@ -2,7 +2,7 @@
 
 -compile([export_all]).
 
--include("../include/schrodinger.hrl").
+-include("schrodinger.hrl").
 
 %%====================================================================
 %% API functions
