@@ -1,4 +1,4 @@
-# Schrodinger 🐈
+# Schrodinger 🐈 ![https://api.travis-ci.org/ostera/schrodinger.svg](https://api.travis-ci.org/ostera/schrodinger.svg)
 > Because your refactor will both work and not work until it runs in production
 
 ## Tutorial 
