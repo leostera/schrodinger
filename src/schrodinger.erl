@@ -1,6 +1,9 @@
 -module(schrodinger).
 
--compile([export_all]).
+-export([
+         experiment/3,
+         experiment/5
+        ]).
 
 -include("../include/schrodinger.hrl").
 
