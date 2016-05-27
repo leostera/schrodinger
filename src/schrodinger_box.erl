@@ -15,7 +15,9 @@
 %% API functions
 %%====================================================================
 
--spec start({name(), control(), candidates(), publishers(), options()}) -> observations().
+-type start_params() :: {schrodinger:name(), schrodinger:control(), schrodinger:candidates(), schrodinger:publishers(), schrodinger:options()}.
+
+-spec start(start_params()) -> schrodinger:observations().
 start({Name, Control, Candidates, Reporters, _Options}) ->
   Observations = [ control(Control) | lists:map(fun candidate/1, Candidates) ],
   collect(Name, Observations, Reporters).
@@ -24,10 +26,10 @@ start({Name, Control, Candidates, Reporters, _Options}) ->
 %% Internal functions
 %%====================================================================
 
--spec collect(name(), observations(), publishers()) -> observations().
+-spec collect(schrodinger:name(), schrodinger:observations(), schrodinger:publishers()) -> schrodinger:observations().
 collect(Name, Observations, Reporters) -> collect(Name, Observations, Reporters, []).
 
--spec collect(name(), observations(), publishers(), observations()) -> observations().
+-spec collect(schrodinger:name(), schrodinger:observations(), schrodinger:publishers(), schrodinger:observations()) -> schrodinger:observations().
 collect(Name, [], Reporters, Results) ->
   publish({summary, {Name, Results}}, Reporters),
   Results;
@@ -42,12 +44,12 @@ collect(Name, Observations, Reporters, Results) ->
   after infinity -> {error, infinity}
   end.
 
--spec control(control()) -> observation().
+-spec control(schrodinger:control()) -> schrodinger:observation().
 control(Control) -> run(control, Control, control).
--spec candidate(candidate()) -> observation().
+-spec candidate(schrodinger:candidate()) -> schrodinger:observation().
 candidate({Name, Predicate}) -> run(Name, Predicate, candidate).
 
--spec run(name(), predicate(), type()) -> observation().
+-spec run(schrodinger:name(), schrodinger:predicate(), schrodinger:type()) -> schrodinger:observation().
 run(Name, Predicate, Type) ->
   schrodinger_experiment:run(#observation{
                                 name=Name,

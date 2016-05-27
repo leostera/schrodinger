@@ -14,7 +14,7 @@
 %% API functions
 %%====================================================================
 
--spec run(observation(), publisher()) -> observation().
+-spec run(schrodinger:observation(), schrodinger:publisher()) -> schrodinger:observation().
 run(#observation{predicate=F}=O1, Collector) when is_function(F) ->
   Observation = O1#observation{
                    started_at=timestamp()

@@ -10,7 +10,7 @@
 %% API functions
 %%====================================================================
 
--spec sample(name(), integer()) -> any().
+-spec sample(schrodinger:name(), integer()) -> any().
 sample(Name, I) ->
   Wait = fun (Id, Time, Return) ->
              { io_lib:format("Experiment #~p", [Id]),

@@ -1,11 +1,53 @@
 -module(schrodinger).
+-include("schrodinger.hrl").
+
+%%====================================================================
+%% Public API
+%%====================================================================
 
 -export([
          experiment/3,
          experiment/5
         ]).
 
--include("schrodinger.hrl").
+%%====================================================================
+%% Type Definitions
+%%====================================================================
+
+-type name() :: atom() | [char()] | <<>>.
+-type timestamp() :: integer() | unset.
+
+-type type() :: candidate | control.
+
+-type predicate()  :: fun( () -> any() ).
+-type control()    :: predicate().
+-type candidate()  :: { name(), predicate() }.
+-type candidates() :: [ candidate() ].
+
+-type publisher()  :: pid().
+-type publishers() :: [ publisher() ].
+
+-type option()  :: { name(), any() }.
+-type options() :: [ option() ].
+
+-type observation()  :: #observation{}.
+-type observations() :: [ observation() ].
+
+-export_type([
+              name/0,
+              timestamp/0,
+              type/0,
+              predicate/0,
+              control/0,
+              candidate/0,
+              candidates/0,
+              publisher/0,
+              publishers/0,
+              option/0,
+              options/0,
+              observation/0,
+              observations/0
+             ]).
 
 %%====================================================================
 %% API functions
