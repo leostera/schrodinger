@@ -36,14 +36,18 @@ collect(Name, [], Reporters, Results) ->
 collect(Name, Observations, Reporters, Results) ->
   receive
     #{ pid := Pid}=Observation ->
-      RemainingObservations = lists:filter(fun (Obs) ->
-                                               #{ pid := Pid2 }=Obs,
-                                               Pid =/= Pid2
-                                           end, Observations),
+      RemainingObservations = filter_out_observation_by_pid(Observations, Pid),
       publish({measurement, {Name, Observation}}, Reporters),
       collect(Name, RemainingObservations, Reporters, [ Observation | Results ])
   after infinity -> {error, infinity}
   end.
+
+-spec filter_out_observation_by_pid(schrodinger:observations(), pid()) -> schrodinger:observations().
+filter_out_observation_by_pid(Observations, Pid) ->
+  lists:filter(fun (Obs) ->
+                   #{ pid := Pid2 }=Obs,
+                   Pid =/= Pid2
+               end, Observations).
 
 -spec control(schrodinger:control()) -> schrodinger:observation().
 control(Control) -> run(control, Control, control).

@@ -27,7 +27,7 @@ run(#{predicate := F}=O1, Collector) when is_function(F) ->
                                         duration := Done-StartedAt,
                                         pid := self()
                                        },
-                 Collector ! UpdatedObservation
+                 publish(Collector, UpdatedObservation)
              end ),
   Observation#{
     pid := Pid
@@ -36,6 +36,9 @@ run(#{predicate := F}=O1, Collector) when is_function(F) ->
 %%====================================================================
 %% Internal functions
 %%====================================================================
+
+-spec publish(schrodinger:publisher(), schrodinger:observation()) -> #{}.
+publish(Collector, Observation) -> Collector ! Observation.
 
 -spec timestamp() -> integer().
 timestamp() -> erlang:system_time(milli_seconds).
