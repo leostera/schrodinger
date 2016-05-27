@@ -1,8 +1,6 @@
 .PHONY: all test eunit check ct compile
 
-all:
-	make compile
-	make -j test
+all: compile test
 
 test: check unit ct
 

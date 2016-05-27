@@ -15,24 +15,23 @@
 %%====================================================================
 
 -spec run(schrodinger:observation(), schrodinger:publisher()) -> schrodinger:observation().
-run(#observation{predicate=F}=O1, Collector) when is_function(F) ->
-  Observation = O1#observation{
-                   started_at=timestamp()
-                  },
+run(#{predicate := F}=O1, Collector) when is_function(F) ->
+  Observation = O1#{ started_at := timestamp() },
   Pid=spawn( fun () ->
-               Result = F(),
-               Done = timestamp(),
-               UpdatedObservation = Observation#observation {
-                 result=Result,
-                 finished_at=Done,
-                 duration=Done-Observation#observation.started_at,
-                 pid=self()
-                },
-               Collector ! UpdatedObservation
+                 Result = F(),
+                 Done = timestamp(),
+                 #{ started_at := StartedAt } = Observation,
+                 UpdatedObservation = Observation#{
+                                        result := Result,
+                                        finished_at := Done,
+                                        duration := Done-StartedAt,
+                                        pid := self()
+                                       },
+                 Collector ! UpdatedObservation
              end ),
-  Observation#observation{
-     pid=Pid
-  }.
+  Observation#{
+    pid := Pid
+   }.
 
 %%====================================================================
 %% Internal functions

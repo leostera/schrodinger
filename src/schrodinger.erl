@@ -30,7 +30,7 @@
 -type option()  :: { name(), any() }.
 -type options() :: [ option() ].
 
--type observation()  :: #observation{}.
+-type observation()  :: #{}.
 -type observations() :: [ observation() ].
 
 -export_type([
@@ -66,8 +66,9 @@ experiment(Name, Control, Candidates, Publishers, Options) ->
 receive_loop(Options) ->
   Timeout = proplists:get_value(timeout, Options),
   receive
-    {measurement, {_, #observation{type=control}=Observation}} ->
-      Observation#observation.result
+    {measurement, {_, #{ type := control }=Observation}} ->
+      #{ result := Result } =  Observation,
+      Result
   after Timeout -> {error, timeout}
   end.
 

@@ -35,10 +35,11 @@ collect(Name, [], Reporters, Results) ->
   Results;
 collect(Name, Observations, Reporters, Results) ->
   receive
-    #observation{pid=Pid}=Observation ->
+    #{ pid := Pid}=Observation ->
       RemainingObservations = lists:filter(fun (Obs) ->
-                                           Pid =/= Obs#observation.pid
-                                       end, Observations),
+                                               #{ pid := Pid2 }=Obs,
+                                               Pid =/= Pid2
+                                           end, Observations),
       publish({measurement, {Name, Observation}}, Reporters),
       collect(Name, RemainingObservations, Reporters, [ Observation | Results ])
   after infinity -> {error, infinity}
@@ -51,11 +52,11 @@ candidate({Name, Predicate}) -> run(Name, Predicate, candidate).
 
 -spec run(schrodinger:name(), schrodinger:predicate(), schrodinger:type()) -> schrodinger:observation().
 run(Name, Predicate, Type) ->
-  schrodinger_experiment:run(#observation{
-                                name=Name,
-                                predicate=Predicate,
-                                type=Type
-                               }, self()).
+  schrodinger_experiment:run(#{
+    name => Name,
+    predicate => Predicate,
+    type => Type
+   }, self()).
 
 -spec publish(any(), list()) -> atom().
 publish(_, []) -> ok;
