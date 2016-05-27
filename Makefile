@@ -1,8 +1,14 @@
-.PHONY: all test eunit check
+.PHONY: all test eunit check ct compile
 
-all: test
+all: compile test
 
-test: check unit
+test: check unit ct
+
+compile:
+	./rebar3 compile
+
+ct:
+	./rebar3 ct --config .ct_spec -c true -v
 
 unit:
 	./rebar3 eunit -c true -v
