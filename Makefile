@@ -1,17 +1,22 @@
-.PHONY: all test eunit check ct compile
+.PHONY: all test eunit check ct compile sh
+
+REBAR=./rebar3
 
 all: compile test
 
 test: check unit ct
 
 compile:
-	./rebar3 compile
+	$(REBAR) compile
 
 ct:
-	./rebar3 ct --config .ct_spec -c true -v
+	$(REBAR) ct --config .ct_spec -c true -v
 
 unit:
-	./rebar3 eunit -c true -v
+	$(REBAR) eunit -c true -v
 
 check:
-	./rebar3 dialyzer
+	$(REBAR) dialyzer
+
+sh:
+	$(REBAR) shell
