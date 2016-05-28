@@ -16,7 +16,7 @@
 
 -spec run(schrodinger:observation(), schrodinger:publisher()) -> schrodinger:observation().
 run(#{predicate := F}=O1, Collector) when is_function(F) ->
-  Observation = O1#{ started_at := timestamp() },
+  Observation = O1#{ started_at => timestamp() },
   Pid=spawn( fun () ->
                  Result = F(),
                  Done = timestamp(),
