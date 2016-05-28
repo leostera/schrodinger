@@ -22,15 +22,15 @@ run(#{predicate := F}=O1, Collector) when is_function(F) ->
                  Done = timestamp(),
                  #{ started_at := StartedAt } = Observation,
                  UpdatedObservation = Observation#{
-                                        result := Result,
-                                        finished_at := Done,
-                                        duration := Done-StartedAt,
-                                        pid := self()
+                                        result => Result,
+                                        finished_at => Done,
+                                        duration => Done-StartedAt,
+                                        pid => self()
                                        },
                  publish(Collector, UpdatedObservation)
              end ),
   Observation#{
-    pid := Pid
+    pid => Pid
    }.
 
 %%====================================================================
