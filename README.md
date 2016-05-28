@@ -1,5 +1,5 @@
 # Schrodinger [![Travis-CI](https://api.travis-ci.org/ostera/schrodinger.svg)](https://travis-ci.org/ostera/schrodinger)
-> 🐈 Because your refactor will both work and not work until it runs in production
+> Because your refactor will both work and not work until it runs in production 🐈
 
 ## Tutorial 
 
@@ -8,10 +8,10 @@
 % schrodinger_sup gets started
 % a schrodinger_lab get started by schrodinger_sup
 2> Control = fun () -> ok end.
-2> schrodinger:experiment(my_test_experiment, Control, [
+3> schrodinger:experiment(my_test_experiment, Control, [
   { candidate_1, fun () -> candidate_1 end },
   { candidate_2, fun () -> candidate_2 end },
-  { candidate_3, fun () -> candidate_2 end },
+  { candidate_3, fun () -> candidate_3 end }
 ]).
 % an experiment record will be created and sent to the schrodinger_lab gen_server
 % the schrodinger_lab will spawn a schrodinger_box to act as an experiment supervisor
