@@ -7,10 +7,11 @@
 1> application:start(schrodinger).
 % schrodinger_sup gets started
 % a schrodinger_lab get started by schrodinger_sup
-2> schrodinger:experiment(my_test_experiment, fun control_function/0, [
-  { candidate_1, fun candidate_1/0 },
-  { candidate_2, fun candidate_2/0 },
-  { candidate_3, fun candidate_3/0 }
+2> Control = fun () -> ok end.
+2> schrodinger:experiment(my_test_experiment, Control, [
+  { candidate_1, fun () -> candidate_1 end },
+  { candidate_2, fun () -> candidate_2 end },
+  { candidate_3, fun () -> candidate_2 end },
 ]).
 % an experiment record will be created and sent to the schrodinger_lab gen_server
 % the schrodinger_lab will spawn a schrodinger_box to act as an experiment supervisor
