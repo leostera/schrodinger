@@ -20,9 +20,12 @@ fixture_observation() -> #{
 fixture_collector() ->
   self().
 
-run_test() ->
+fixture_test_experiment() ->
   Observation = fixture_observation(),
-  Result = schrodinger_experiment:run(Observation, fixture_collector()),
+  schrodinger_experiment:run(Observation, fixture_collector()).
+
+run_test() ->
+  Result = fixture_test_experiment(),
   true = erlang:is_map(Result),
   #{ name := Name,
      predicate := Predicate,
