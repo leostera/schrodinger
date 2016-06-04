@@ -17,11 +17,30 @@ fixture_observation() -> #{
   type => fixture_type()
  }.
 
+fixture_observation_without_predicate() -> #{
+  name => fixture_name(),
+  type => fixture_type()
+ }.
+
+fixture_observation_with_non_function_predicate() -> #{
+  name => fixture_name(),
+  predicate => not_a_function,
+  type => fixture_type()
+ }.
+
 fixture_collector() ->
   self().
 
 fixture_test_experiment() ->
-  Observation = fixture_observation(),
+  fixture_run(fixture_observation()).
+
+fixture_test_experiment_without_predicate() ->
+  fixture_run(fixture_observation_without_predicate()).
+
+fixture_test_experiment_with_non_function_predicate() ->
+  fixture_run(fixture_observation_with_non_function_predicate()).
+
+fixture_run(Observation) ->
   schrodinger_experiment:run(Observation, fixture_collector()).
 
 run_test() ->
@@ -38,3 +57,9 @@ run_test() ->
   Type = fixture_type(),
   true = StartedAt =< schrodinger_utils:timestamp(),
   true = erlang:is_pid(Pid).
+
+run_without_predicate_test() ->
+  {error, no_predicate} = fixture_test_experiment_without_predicate().
+
+run_with_non_function_predicate_test() ->
+  {error, predicate_must_be_a_function} = fixture_test_experiment_with_non_function_predicate().

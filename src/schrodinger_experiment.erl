@@ -31,7 +31,10 @@ run(#{predicate := F}=O1, Collector) when is_function(F) ->
              end ),
   Observation#{
     pid => Pid
-   }.
+   };
+run(#{predicate := F}, _) when not is_function(F) ->
+  {error, predicate_must_be_a_function};
+run(_, _) -> {error, no_predicate}.
 
 %%====================================================================
 %% Internal functions
