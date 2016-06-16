@@ -1,1 +1,4 @@
-[].
+[{<<"pry">>,
+  {git,"https://github.com/ostera/pry",
+       {ref,"8fde974ec600bfc9aadde3e16da8502b9a649463"}},
+  0}].

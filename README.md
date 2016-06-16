@@ -31,5 +31,3 @@ This gives us the following architecture components:
 * `schrodinger_box`, that will run, and summarize and bubble up results from a bunch of
 * `schrodinger_experiment`, that will run the control/candidates and measure
 * `schrodinger`, that will be the public API
-
- dbg:tpl(erlang,spawn,'_',[{'_',[],[{return_trace}]}]).
