@@ -1,10 +1,14 @@
 # Schrodinger [![Travis-CI](https://api.travis-ci.org/ostera/schrodinger.svg)](https://travis-ci.org/ostera/schrodinger)
-🔬 An Erlang library for carefully refactoring critical code paths.
+> 🐈 An Erlang library for carefully refactoring critical code paths.
 
 Schrodinger helps you refactor a critical code path by setting up experiments.
 
-These experiments consist on a `control` (your current code path) and a number of
-`candidates` (paths of code to test).
+Experiments are a straightforward, clear tool to tackle any big refactor without 
+the risk of blowing everything up.
+
+These experiments consist on a `control` (your current code path), a number of
+`candidates` (paths of code to test), and an optional `clean up` function for your
+`candidates`.
 
 For each of your experiments, the `control` will execute and return immediately,
 with minimal overhead &mdash; preserving the original flow of your application.
@@ -12,11 +16,13 @@ with minimal overhead &mdash; preserving the original flow of your application.
 Whereas the `candidates` will be ran safely and concurrently as isolated processes
 and each of the results will be measured and published for later analysis.
 
+If needed, the `clean up` function will be run after the candidates.
+
 ## Installation
 
 Simply include in your `rebar.config` as:
 
-```
+```erlang
 {deps, [
   % ...
   {schrodinger, {git, "https://github.com/ostera/schrodinger", {tag, "0.1.0"}}}
@@ -37,8 +43,7 @@ After that, just create new experiments with `schrodinger:experiment/3` as shown
 1> application:start(schrodinger).
 % schrodinger_sup gets started
 % a schrodinger_lab get started by schrodinger_sup
-2> Control = fun () -> ok end.
-3> schrodinger:experiment(my_test_experiment, fun schrodinger_utils:timestamp/0, [
+2> schrodinger:experiment(my_test_experiment, fun schrodinger_utils:timestamp/0, [
   { candidate_1, fun schrodinger_utils:timestamp/0 },
   { candidate_2, fun schrodinger_utils:timestamp/0 },
   { candidate_3, fun schrodinger_utils:timestamp/0 }
@@ -50,7 +55,7 @@ After that, just create new experiments with `schrodinger:experiment/3` as shown
 % the box will then publish back the results to the lab
 % once all experiments are finished, the box will send a summary to the lab
 % the lab will forward all these messages to the publishers (by default it's self())
-<control_fun_return_value>
+1468054742256
 ```
 
 This gives us the following architecture components:
@@ -64,7 +69,7 @@ This gives us the following architecture components:
 
 ## Motivation
 
-Inspired by [Github's Scientist](https://github.com/github/scientist) I decided to make
+Inspired by [Github's Scientist](https://github.com/github/scientist), I decided to make
 a quick proof of concept by running each of the candidates as different processes.
 
 The original code was very naive, just wrapping the candidates in a simple fun that
