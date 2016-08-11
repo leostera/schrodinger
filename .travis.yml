@@ -1,9 +1,15 @@
 language: erlang
 
+cache:
+  directories:
+    - $HOME/.cache/rebar3
+
 otp_release:
-    - 18.2.1
-    - 18.1
-    - 18.0
+    - 18.3
+    - 19.0
 
 script:
-    - make
+    - make compile
+    - make check
+    - make unit
+    - make ct
