@@ -40,7 +40,7 @@ run(_, _) -> {error, no_predicate}.
 %% Internal functions
 %%====================================================================
 
--spec publish(schrodinger:publisher(), schrodinger:observation()) -> #{}.
+-spec publish(schrodinger:publisher(), schrodinger:observation()) -> schrodinger:observation().
 publish(Collector, Observation) -> Collector ! Observation.
 
 -spec timestamp() -> integer().
