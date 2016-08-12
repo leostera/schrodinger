@@ -31,9 +31,11 @@
 -type options() :: [ option() ].
 
 -type observation()  :: #{
-        pid       => pid(),
-        predicate => fun(),
-        started_at => timestamp()
+        name       => name(),
+        pid        => pid(),
+        predicate  => predicate(),
+        started_at => timestamp(),
+        type       => type()
        }.
 
 -type observations() :: [ observation() ].
