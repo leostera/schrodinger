@@ -30,7 +30,12 @@
 -type option()  :: { name(), any() }.
 -type options() :: [ option() ].
 
--type observation()  :: #{}.
+-type observation()  :: #{
+        pid       => pid(),
+        predicate => fun(),
+        started_at => timestamp()
+       }.
+
 -type observations() :: [ observation() ].
 
 -export_type([
