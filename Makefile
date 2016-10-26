@@ -1,4 +1,4 @@
-.PHONY: all test eunit check ct compile sh clean
+.PHONY: all test eunit check ct compile sh clean tags
 
 REBAR=./rebar3
 
@@ -24,3 +24,6 @@ sh:
 clean:
 	$(REBAR) clean
 	rm -rf _build
+
+tags:
+	ctags .
